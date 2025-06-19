@@ -1,0 +1,39 @@
+# Ruta: .github/workflows/main.yml
+
+name: Deploy to Surge
+
+# Se dispara en cada push a la rama `main`
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Desplegar en Surge
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Obtener el código del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Instalar Node.js (requerido por Surge)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. Instalar la CLI de Surge
+      - name: Install Surge CLI
+        run: npm install --global surge
+
+      # 4. Desplegar usando token y dominio almacenados en GitHub Secrets
+      - name: Deploy to Surge
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          SURGE_DOMAIN: ${{ secrets.SURGE_DOMAIN }}
+        run: |
+          surge --project ./ \
+                --domain $SURGE_DOMAIN \
+                --token $SURGE_TOKEN
